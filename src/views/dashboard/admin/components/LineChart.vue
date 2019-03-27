@@ -33,7 +33,8 @@ export default {
   data() {
     return {
       chart: null,
-      sidebarElm: null
+      sidebarElm: null,
+      dayNum:[]
     }
   },
   watch: {
@@ -45,6 +46,19 @@ export default {
     }
   },
   mounted() {
+
+    var date = new Date();
+    var year = date.getFullYear();
+    var month = date.getMonth()+1;
+    var d = new Date(year, month, 0);
+    // console.log(d.getDate(),123);
+    var dayNum=[]
+    for(let i=1;i<=d.getDate();i++){
+      dayNum[i-1]=i;
+    }
+    this.dayNum=dayNum
+
+
     this.initChart()
     if (this.autoResize) {
       this.__resizeHandler = debounce(() => {
@@ -81,7 +95,7 @@ export default {
     setOptions({ expectedData, actualData } = {}) {
       this.chart.setOption({
         xAxis: {
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          data: this.dayNum,
           boundaryGap: false,
           axisTick: {
             show: false
@@ -107,7 +121,7 @@ export default {
           }
         },
         legend: {
-          data: ['expected', 'actual']
+          data: [ '实际数据']
         },
         series: [{
           name: 'expected', itemStyle: {
@@ -126,8 +140,8 @@ export default {
           animationEasing: 'cubicInOut'
         },
         {
-          name: 'actual',
-          smooth: true,
+          name: '实际数据',
+          smooth: false,
           type: 'line',
           itemStyle: {
             normal: {

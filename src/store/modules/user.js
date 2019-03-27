@@ -10,7 +10,7 @@ const user = {
     name: '',
     avatar: '',
     introduction: '',
-    roles: [],
+    roles: '',
     setting: {
       articlePlatform: []
     }
