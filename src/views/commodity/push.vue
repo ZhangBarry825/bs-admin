@@ -26,13 +26,13 @@
             <div class="postInfo-container">
               <el-row>
                 <el-col :span="8">
-                  <el-form-item label-width="45px" label="分类:" prop="type" class="postInfo-container-item">
-                    <el-select v-model="myPostForm.type" placeholder="请选择">
+                  <el-form-item label-width="45px" label="分类:" prop="type_id" class="postInfo-container-item">
+                    <el-select v-model="myPostForm.type_id" placeholder="请选择">
                       <el-option
                         v-for="item in TypeOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
+                        :key="item.type_id"
+                        :label="item.name"
+                        :value="item.type_id">
                       </el-option>
                     </el-select>
                   </el-form-item>
@@ -46,19 +46,19 @@
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label-width="45px" label="运费:" class="postInfo-container-item" prop="express">
-                    <el-input v-model="myPostForm.express" placeholder="请输入价格(元)" type="number" min="0"></el-input>
+                    <el-input v-model="myPostForm.express_cost" placeholder="请输入价格(元)" type="number" min="0"></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label-width="45px" label="库存:" class="postInfo-container-item" prop="num">
-                    <el-input v-model="myPostForm.num" placeholder="请输入库存(件)" type="number" min="0"></el-input>
+                    <el-input v-model="myPostForm.stock" placeholder="请输入库存(件)" type="number" min="0"></el-input>
                   </el-form-item>
                 </el-col>
               </el-row>
               <el-row>
                 <el-col :span="8">
                   <el-form-item label-width="45px" label="规格:" class="postInfo-container-item" >
-                    <el-input v-for="(item,index) in specification" v-model="item.name" :placeholder="'请输入规格'+index"></el-input>
+                    <el-input v-for="(item,index) in myPostForm.specification" v-model="item.name" :placeholder="'请输入规格'+addOne(index)"></el-input>
                     <el-button-group>
                       <el-button type="primary" icon="el-icon-plus" @click="addSpec"></el-button>
                       <el-button type="primary" icon="el-icon-minus" @click="reduceSpec"></el-button>
@@ -74,6 +74,8 @@
                     <el-switch
                       v-model="myPostForm.status"
                       active-color="#13ce66"
+                      active-value="1"
+                      inactive-value="0"
                       inactive-color="#ff4949">
                     </el-switch>
                     <a>正常</a>
@@ -131,6 +133,8 @@
   import {userSearch} from '@/api/remoteSearch'
   import Warning from './Warning'
   import {CommentDropdown, PlatformDropdown, SourceUrlDropdown} from './Dropdown'
+  import {addGoods} from "@/api/goods";
+  import {getAllTypes} from "@/api/goodsType";
 
   const defaultForm = {
     status: 'draft',
@@ -147,12 +151,12 @@
   }
   const myDefaultForm = {
     name: '',//商品名称
-    type: '',//商品类型
     price: '',//商品价格
-    express: '',//运费价格
-    status: '',//商品状态
-    specification:[],//商品规格
-    num: '',//商品库存
+    express_cost: '',//运费价格
+    status: '1',//商品状态
+    specification: [{name: ''}],
+    type_id:'',
+    stock: '',//商品库存
     pic1:'',//商品图片1
     pic2:'',//商品图片2
     pic3:'',//商品图片3
@@ -210,22 +214,9 @@
           source_uri: [{validator: validateSourceUri, trigger: 'blur'}]
         },
         tempRoute: {},
-        TypeOptions: [
-          {
-            value: '1',
-            label: '包'
-          },
-          {
-            value: '2',
-            label: '化妆品'
-          },
-          {
-            value: '3',
-            label: '日用品'
-          }
-        ],
+        TypeOptions: [],
         typeNum: 1,
-        specification: [{name: ''}],
+
       }
     },
     computed: {
@@ -250,6 +241,9 @@
       this.tempRoute = Object.assign({}, this.$route)
     },
     methods: {
+      addOne(val){
+        return val+1
+      },
       fetchData(id) {
         fetchArticle(id).then(response => {
           this.postForm = response.data
@@ -269,25 +263,77 @@
         this.$store.dispatch('updateVisitedView', route)
       },
       submitForm() {
-        // this.postForm.display_time = parseInt(this.display_time / 1000)
-        // console.log(this.postForm)
-        // this.$refs.postForm.validate(valid => {
-        //   if (valid) {
-        //     this.loading = true
-        //     this.$notify({
-        //       title: '成功',
-        //       message: '发布文章成功',
-        //       type: 'success',
-        //       duration: 2000
-        //     })
-        //     this.postForm.status = 'published'
-        //     this.loading = false
-        //   } else {
-        //     console.log('error submit!!')
-        //     return false
-        //   }
-        // })
+        if (this.myPostForm.name == '') {
+          this.$message({
+            type: 'error',
+            message: '商品名称不能为空！'
+          });
+          return;
+        }
+        if (this.myPostForm.price == '') {
+          this.$message({
+            type: 'error',
+            message: '价格不能为空！'
+          });
+          return;
+        }
+        if (this.myPostForm.type_id == '') {
+          this.$message({
+            type: 'error',
+            message: '分类不能为空！'
+          });
+          return;
+        }
+        for(let i=0;i<this.myPostForm.specification.length;i++){
+          if(this.myPostForm.specification[i].name=='' || this.myPostForm.specification[i].avatar==''){
+            this.$message({
+              type: 'error',
+              message: '规格不能为空！'
+            });
+            return;
+          }
+        }
+        if (this.myPostForm.pic1 == '' || this.myPostForm.pic2 == '' ||this.myPostForm.pic3 == '') {
+          this.$message({
+            type: 'error',
+            message: '图片不能为空！'
+          });
+          return;
+        }
+        if (this.myPostForm.stock == '') {
+          this.$message({
+            type: 'error',
+            message: '库存不能为空！'
+          });
+          return;
+        }
+        if (this.myPostForm.content == '') {
+          this.$message({
+            type: 'error',
+            message: '内容不能为空！'
+          });tt
+          return;
+        }
+        if (this.myPostForm.express_cost == '') {
+          this.$message({
+            type: 'error',
+            message: '运费不能为空！'
+          });
+          return;
+        }
 
+        console.log(this.myPostForm, 123)
+
+        addGoods(this.myPostForm).then(response => {
+          console.log(response)
+          this.postForm.status = 'published'
+          this.$notify({
+            title: '成功',
+            message: '新建成功',
+            type: 'success',
+            duration: 2000
+          })
+        })
 
       },
       draftForm() {
@@ -313,15 +359,24 @@
         })
       },
       addSpec(){
-        if(this.specification.length<10){
-          this.specification.push({name:''})
+        if(this.myPostForm.specification.length<10){
+          this.myPostForm.specification.push({name:''})
         }
       },
       reduceSpec(){
-        if(this.specification.length>1){
-          this.specification.splice(this.specification.length-1)
+        if(this.myPostForm.specification.length>1){
+          this.myPostForm.specification.splice(this.myPostForm.specification.length-1)
         }
+      },
+      getAllTypes(){
+        getAllTypes(1000000,1).then(response => {
+         console.log(response.data,852)
+          this.TypeOptions=response.data.rows
+        })
       }
+    },
+    mounted(){
+      this.getAllTypes()
     }
   }
 </script>

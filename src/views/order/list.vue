@@ -1,55 +1,52 @@
 <template>
   <div class="content">
-    <TopHeader></TopHeader>
+    <TopHeader :New="'/'" @DeleteSelected="DeleteSelected" :DisabledNew="true"></TopHeader>
 
 
     <el-table
       ref="multipleTable"
       :data="tableData"
       tooltip-effect="dark"
-      style="width: 100%">
+      style="width: 100%"
+      v-loading="loading"
+      @selection-change="handleSelectionChange">
       <el-table-column
-        type="selection"
-        width="55">
+        type="selection">
       </el-table-column>
       <el-table-column
-        prop="orderNum"
-        label="订单号"
-        width="100">
+        prop="order_id"
+        label="订单号">
       </el-table-column>
       <el-table-column
-        prop="fenxiaoshang"
-        label="分销商"
-        width="100">
+        prop="shopper"
+        label="分销商">
       </el-table-column>
       <el-table-column
-        prop="membershipNum"
-        label="会员号"
-        width="100">
+        prop="membership_id"
+        label="会员号">
       </el-table-column>
       <el-table-column
         prop="nickname"
-        label="昵称(姓名)"
-        width="100">
+        label="昵称">
       </el-table-column>
       <el-table-column
-        prop="account"
-        label="金额"
-        width="100">
+        prop="price"
+        label="金额">
         <template slot-scope="scope">
-          <a style="color: red;">￥{{scope.row.account}}</a>
+          <a style="color: red;">￥{{scope.row.price}}</a>
         </template>
       </el-table-column>
       <el-table-column
-        prop="time"
-        label="时间"
-        width="250">
+        prop="create_time"
+        label="时间">
+        <template slot-scope="scope">
+          <a>{{ formatTime(scope.row.create_time) }}</a>
+        </template>
       </el-table-column>
 
       <el-table-column
         prop="status"
         label="订单状态"
-        width="100"
         :filters="[{ text: '待付款', value: '0' },{ text: '待发货', value: '1' }, { text: '已发货', value: '2' }, { text: '已完成', value: '3' },]"
         :filter-method="filterTag"
         filter-placement="bottom-end">
@@ -67,21 +64,24 @@
             size="mini"
             @click="handleEdit(scope.$index, scope.row)">详情
           </el-button>
-          <!--<el-button-->
-            <!--size="mini"-->
-            <!--type="danger"-->
-            <!--@click="handleDelete(scope.$index, scope.row)">删除-->
-          <!--</el-button>-->
+          <el-button
+            size="mini"
+            type="danger"
+            @click="handleDelete(scope.$index, scope.row)">删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
 
 
     <el-pagination
+      :page-size="page_size"
+      :current-page="page_num"
+      @current-change="changPage"
       class="pageNum"
       background
       layout="prev, pager, next"
-      :total="1000">
+      :total="all_num">
     </el-pagination>
 
   </div>
@@ -89,116 +89,82 @@
 
 <script>
   import TopHeader from '@/components/TopHeader'
+  import {getAllOrder} from "@/api/order";
+  import {parseTime} from "@/utils";
+  import {deleteOrder} from "@/api/order";
 
   export default {
     name: "OrderList",
     components: {TopHeader},
     data() {
       return {
-        tableData: [
-          {
-          orderNum:'1125244',
-          fenxiaoshang:'大番薯',
-          membershipNum:'55232',
-          nickname:'雷神托尔',
-          account:'552',
-          time:'2019-02-28 15:10:41',
-          status:'0',
-          },
-          {
-            orderNum:'1125244',
-            fenxiaoshang:'大番薯',
-            membershipNum:'55232',
-            nickname:'雷神托尔',
-            account:'552',
-            time:'2019-02-28 15:10:41',
-            status:'1',
-          },
-          {
-            orderNum:'1125244',
-            fenxiaoshang:'大番薯',
-            membershipNum:'55232',
-            nickname:'雷神托尔',
-            account:'552',
-            time:'2019-02-28 15:10:41',
-            status:'2',
-          },
-          {
-            orderNum:'1125244',
-            fenxiaoshang:'大番薯',
-            membershipNum:'55232',
-            nickname:'雷神托尔',
-            account:'552',
-            time:'2019-02-28 15:10:41',
-            status:'3',
-          },
-          {
-            orderNum:'1125244',
-            fenxiaoshang:'大番薯',
-            membershipNum:'55232',
-            nickname:'雷神托尔',
-            account:'552',
-            time:'2019-02-28 15:10:41',
-            status:'3',
-          },
-          {
-            orderNum:'1125244',
-            fenxiaoshang:'大番薯',
-            membershipNum:'55232',
-            nickname:'雷神托尔',
-            account:'552',
-            time:'2019-02-28 15:10:41',
-            status:'0',
-          },
-          {
-            orderNum:'1125244',
-            fenxiaoshang:'大番薯',
-            membershipNum:'55232',
-            nickname:'雷神托尔',
-            account:'552',
-            time:'2019-02-28 15:10:41',
-            status:'1',
-          },
-          {
-            orderNum:'1125244',
-            fenxiaoshang:'大番薯',
-            membershipNum:'55232',
-            nickname:'雷神托尔',
-            account:'552',
-            time:'2019-02-28 15:10:41',
-            status:'2',
-          },
-          {
-            orderNum:'1125244',
-            fenxiaoshang:'大番薯',
-            membershipNum:'55232',
-            nickname:'雷神托尔',
-            account:'552',
-            time:'2019-02-28 15:10:41',
-            status:'3',
-          },
-          {
-            orderNum:'1125244',
-            fenxiaoshang:'大番薯',
-            membershipNum:'55232',
-            nickname:'雷神托尔',
-            account:'552',
-            time:'2019-02-28 15:10:41',
-            status:'3',
-          }
-        ],
-        multipleSelection: []
+        tableData: [],
+        selected: [],
+        loading: false,
+        page_size: 10,
+        page_num: 1,
+        all_num: 0,
+        TypeOptions: [],
       }
     },
 
 
     methods: {
+      DeleteSelected(){
+        console.log(this.selected)
+        var toDelete=[]
+        for(let i=0;i<this.selected.length;i++){
+          toDelete[i]=this.selected[i].id
+        }
+        this.$confirm('删除这些订单, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
 
+          deleteOrder(toDelete).then(response => {
+            if(response.msg=='success'){
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              });
+              this.getData(this.page_num)
+            }
+            console.log(response)
+
+          })
+        }).catch(() => {
+
+        });
+      },
+      formatTime(v){
+        return parseTime(v)
+      },
+      handleSelectionChange(val) {
+        this.selected = val;
+      },
       handleEdit(index, row) {
         console.log(index, row);
+        this.$router.push({path:`/order/detail/${row.id}`})
       },
       handleDelete(index, row) {
         console.log(index, row);
+        this.$confirm('删除该订单, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          deleteOrder([row.id]).then(response => {
+            console.log(response)
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+            this.getData(this.page_num)
+          })
+        }).catch(() => {
+
+        });
       },
 
 
@@ -208,7 +174,7 @@
         }else if(value==1){
           return '待发货'
         }else if(value==2){
-          return '已发货'
+          return '待收货'
         }else if(value==3){
           return '已完成'
         }else {
@@ -221,7 +187,28 @@
       filterHandler(value, row, column) {
         const property = column['property'];
         return row[property] === value;
-      }
+      },
+      getData(page = 1) {
+        this.loading = true
+        getAllOrder(this.page_size, page).then(response => {
+          console.log(response)
+          this.loading = false
+          if(response.data.rows.length < 1 && this.page_num>1){
+            this.page_num--
+            this.getData(this.page_num)
+          }else {
+            this.all_num = response.data.count
+            this.tableData = response.data.rows
+          }
+        })
+      },
+      changPage(e) {
+        this.page_num=e
+        this.getData(e)
+      },
+    },
+    mounted(){
+      this.getData()
     }
   }
 </script>

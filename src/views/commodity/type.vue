@@ -1,10 +1,11 @@
 <template>
   <div class="content">
-    <TopHeader></TopHeader>
+    <TopHeader  :New="'/commodity/addType'" @DeleteSelected="DeleteSelected"></TopHeader>
 
 
     <el-table
       ref="multipleTable"
+      v-loading="loading"
       :data="tableData"
       tooltip-effect="dark"
       style="width: 100%"
@@ -14,26 +15,23 @@
         width="55">
       </el-table-column>
       <el-table-column
-        label="分类序号"
-        width="120">
-        <template slot-scope="scope">{{ scope.row.num }}</template>
+        label="分类序号">
+        <template slot-scope="scope">{{ scope.row.type_id }}</template>
       </el-table-column>
       <el-table-column
         prop="name"
-        label="分类名称"
-        width="250">
+        label="分类名称">
       </el-table-column>
+      <!--<el-table-column-->
+        <!--label="分类图片"-->
+        <!--show-overflow-tooltip>-->
+        <!--<template slot-scope="scope">-->
+          <!--<div class="display-pic" :style="'background-image: url('+require('../../assets/display/5c1477307e.jpg')+')'"></div>-->
+        <!--</template>-->
+      <!--</el-table-column>-->
       <el-table-column
-        label="分类图片"
-        show-overflow-tooltip>
-        <template slot-scope="scope">
-          <div class="display-pic" :style="'background-image: url('+require('../../assets/display/5c1477307e.jpg')+')'"></div>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="child"
-        label="子分类数量"
-        width="100">
+        prop="childrenNum"
+        label="子分类数量">
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
@@ -53,10 +51,13 @@
     <!--</div>-->
 
     <el-pagination
+      :page-size="page_size"
+      :current-page="page_num"
+      @current-change="changPage"
       class="pageNum"
       background
       layout="prev, pager, next"
-      :total="1000">
+      :total="all_num">
     </el-pagination>
 
   </div>
@@ -64,61 +65,102 @@
 
 <script>
   import TopHeader from '@/components/TopHeader'
+  import {getAllTypes} from "@/api/goodsType";
+  import {deleteGoodsType} from "@/api/goodsType";
 
   export default {
     name: "CommodityType",
     components: {TopHeader},
     data(){
       return{
-        tableData: [{
-          num: '251354',
-          name: '包',
-          type:'包',
-          price: '￥215',
-          pic:'../../assets/display/5c1477307e.jpg',
-          child:'2'
-        },
-          {
-            num: '251354',
-            name: '彩妆',
-            type:'包',
-            price: '￥215',
-            pic:'../../assets/display/5c1477307e.jpg',
-            child:'2'
-          },
-          {
-            num: '251354',
-            name: '日用品',
-            type:'包',
-            price: '￥215',
-            pic:'../../assets/display/5c1477307e.jpg',
-            child:'2'
-          }
-        ],
-        multipleSelection: []
+        tableData: [],
+        selected: [],
+        loading: false,
+        page_size: 10,
+        page_num: 1,
+        all_num: 0,
       }
     },
 
 
     methods:{
-      toggleSelection(rows) {
-        if (rows) {
-          rows.forEach(row => {
-            this.$refs.multipleTable.toggleRowSelection(row);
-          });
-        } else {
-          this.$refs.multipleTable.clearSelection();
+      DeleteSelected(){
+        console.log(this.selected)
+        var toDelete=[]
+        for(let i=0;i<this.selected.length;i++){
+          toDelete[i]=this.selected[i].id
         }
+        this.$confirm('删除这些分类, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+
+          deleteGoodsType(toDelete).then(response => {
+            if(response.msg=='success'){
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              });
+              this.getData(this.page_num)
+            }
+            console.log(response)
+
+          })
+        }).catch(() => {
+
+        });
+
+
+
       },
       handleSelectionChange(val) {
-        this.multipleSelection = val;
+        this.selected = val;
       },
       handleEdit(index, row) {
         console.log(index, row);
+        this.$router.push({path:`/commodity/editType/${row.id}`})
       },
       handleDelete(index, row) {
         console.log(index, row);
+        this.$confirm('删除该分类, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          deleteGoodsType([row.id]).then(response => {
+            console.log(response)
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+            this.getData(this.page_num)
+          })
+        }).catch(() => {
+
+        });
+      },
+      getData(page = 1) {
+        this.loading = true
+        getAllTypes(this.page_size, page,1).then(response => {
+          console.log(response)
+          this.loading = false
+          if(response.data.rows.length < 1 && this.page_num>1){
+            this.page_num--
+            this.getData(this.page_num)
+          }else {
+            this.all_num = response.data.count
+            this.tableData = response.data.rows
+          }
+        })
+      },
+      changPage(e) {
+        this.page_num=e
+        this.getData(e)
       }
+    },
+    mounted(){
+      this.getData()
     }
   }
 </script>

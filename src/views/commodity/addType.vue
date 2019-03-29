@@ -4,7 +4,7 @@
 
       <sticky :class-name="'sub-navbar '+postForm.status">
 
-        <el-button v-loading="loading" style="margin-left: 10px;" type="success" @click="submitForm">发布
+        <el-button v-loading="loading" style="margin-left: 10px;" type="success" @click="submitForm">新建
         </el-button>
 
       </sticky>
@@ -23,33 +23,37 @@
 
             <div class="postInfo-container">
 
-              <el-row>
-                <el-col :span="8">
-                  <el-form-item label-width="60px" label="子分类:" class="postInfo-container-item" >
-                    <el-input v-for="(item,index) in children" v-model="item.name" :placeholder="'子分类名'+index"></el-input>
-                    <el-button-group>
-                      <el-button type="primary" icon="el-icon-plus" @click="addSpec"></el-button>
-                      <el-button type="primary" icon="el-icon-minus" @click="reduceSpec"></el-button>
-                    </el-button-group>
-                  </el-form-item>
-                </el-col>
-              </el-row>
+              <div v-for="(item,index) in myPostForm.children">
+                <el-row>
+                  <el-col :span="8">
+                    <el-form-item label-width="70px" :label="'子分类'+addOne(index)+':'" class="postInfo-container-item">
+                      <el-input v-model="item.name" placeholder="子分类名" style="width: 300px"></el-input>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <el-row>
+                    <div style="width: 100%">
+                      <el-row>
+                        <el-col :span="8">
+                          <el-form-item label-width="70px" label="图片:" class="postInfo-container-item">
+                          </el-form-item>
+                        </el-col>
+                      </el-row>
+                      <el-form-item prop="image_uri" style="margin-bottom: 30px;">
+                        <Upload v-model="myPostForm.children[index].avatar"/>
+                      </el-form-item>
+                    </div>
 
+                </el-row>
+              </div>
+              <el-button-group>
+                <el-button type="primary" icon="el-icon-plus" @click="addSpec"></el-button>
+                <el-button type="primary" icon="el-icon-minus" @click="reduceSpec"></el-button>
+              </el-button-group>
             </div>
           </el-col>
         </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label-width="60px" label="图片:" class="postInfo-container-item">
-            </el-form-item>
-          </el-col>
-        </el-row>
 
-
-
-        <el-form-item prop="image_uri" style="margin-bottom: 30px;">
-          <Upload v-model="myPostForm.pic"/>
-        </el-form-item>
 
       </div>
     </el-form>
@@ -67,6 +71,7 @@
   import {userSearch} from '@/api/remoteSearch'
   import Warning from './Warning'
   import {CommentDropdown, PlatformDropdown, SourceUrlDropdown} from './Dropdown'
+  import {addGoodsType} from "@/api/goodsType";
 
   const defaultForm = {
     status: 'draft',
@@ -83,8 +88,7 @@
   }
   const myDefaultForm = {
     name: '',//分类名称
-    children:[],//子分类
-    pic:'',//分类图片
+    children: [{name: '', level: 2, avatar: ''}],//子分类
   }
   export default {
     name: 'addType',
@@ -138,7 +142,6 @@
           source_uri: [{validator: validateSourceUri, trigger: 'blur'}]
         },
         tempRoute: {},
-        children: [{name: ''}],
       }
     },
     computed: {
@@ -163,6 +166,9 @@
       this.tempRoute = Object.assign({}, this.$route)
     },
     methods: {
+      addOne(val){
+        return val+1
+      },
       fetchData(id) {
         fetchArticle(id).then(response => {
           this.postForm = response.data
@@ -182,6 +188,36 @@
         this.$store.dispatch('updateVisitedView', route)
       },
       submitForm() {
+        if (this.myPostForm.name == '') {
+          this.$message({
+            type: 'error',
+            message: '分类名称不能为空！'
+          });
+          return;
+        }
+        for(let i=0;i<this.myPostForm.children.length;i++){
+          if(this.myPostForm.children[i].name=='' || this.myPostForm.children[i].avatar==''){
+            this.$message({
+              type: 'error',
+              message: '子分类名和图片不能为空！'
+            });
+            return;
+          }
+        }
+        console.log(this.myPostForm, 123)
+
+        addGoodsType(this.myPostForm).then(response => {
+          console.log(response)
+          this.postForm.status = 'published'
+          this.$notify({
+            title: '成功',
+            message: '新建成功',
+            type: 'success',
+            duration: 2000
+          })
+        })
+
+
         // this.postForm.display_time = parseInt(this.display_time / 1000)
         // console.log(this.postForm)
         // this.$refs.postForm.validate(valid => {
@@ -225,14 +261,14 @@
           this.userListOptions = response.data.items.map(v => v.name)
         })
       },
-      addSpec(){
-        if(this.children.length<10){
-          this.children.push({name:''})
+      addSpec() {
+        if (this.myPostForm.children.length < 10) {
+          this.myPostForm.children.push({name: '', level: 2, avatar: ''})
         }
       },
-      reduceSpec(){
-        if(this.children.length>1){
-          this.children.splice(this.children.length-1)
+      reduceSpec() {
+        if (this.myPostForm.children.length > 1) {
+          this.myPostForm.children.splice(this.myPostForm.children.length - 1)
         }
       }
     }

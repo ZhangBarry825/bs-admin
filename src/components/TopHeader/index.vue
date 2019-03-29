@@ -2,7 +2,7 @@
   <div class="HeaderContent">
 
     <el-button-group>
-      <el-button type="primary" icon="el-icon-edit" @click="NewOne">新建</el-button>
+      <el-button type="primary" icon="el-icon-edit" @click="NewOne" :disabled="DisabledNew">新建</el-button>
       <!--<el-button type="primary" icon="el-icon-share">分享</el-button>-->
       <el-button type="primary" icon="el-icon-delete" @click="DeleteSelected">删除</el-button>
     </el-button-group>
@@ -53,7 +53,12 @@
           return '/'
         }
       },
-
+      DisabledNew: {
+        type: Boolean,
+        default: function () {
+          return false
+        }
+      },
     }
   }
 </script>

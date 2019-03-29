@@ -388,7 +388,7 @@ export const asyncRouterMap = [
         meta: { title: '商品列表', noCache: true ,icon: 'clipboard' }
       },
       {
-        path: 'edit',
+        path: 'edit/:id',
         component: () => import('@/views/commodity/edit'),
         name: '商品编辑',
         // hidden:true,
@@ -419,7 +419,7 @@ export const asyncRouterMap = [
         meta: { title: '新建分类', noCache: true ,icon: 'clipboard' }
       },
       {
-        path: 'editType',
+        path: 'editType/:id',
         component: () => import('@/views/commodity/editType'),
         name: '编辑分类',
         // hidden:true,
@@ -450,13 +450,13 @@ export const asyncRouterMap = [
         meta: { title: '退货订单', noCache: true ,icon: 'clipboard' }
       },
       {
-        path: 'detail',
+        path: 'detail/:id',
         component: () => import('@/views/order/detail'),
         name: '订单详情',
         meta: { title: '订单详情', noCache: true ,icon: 'clipboard' }
       },
       {
-        path: 'refundDetail',
+        path: 'refundDetail/:id',
         component: () => import('@/views/order/refundDetail'),
         name: '退货详情',
         meta: { title: '退货详情', noCache: true ,icon: 'clipboard' }

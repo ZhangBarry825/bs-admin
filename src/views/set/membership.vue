@@ -1,6 +1,6 @@
 <template>
   <div class="content">
-    <TopHeader :New="'/'" @DeleteSelected="DeleteSelected"></TopHeader>
+    <TopHeader :New="'/'" @DeleteSelected="DeleteSelected"  :DisabledNew="true"></TopHeader>
 
 
     <el-table

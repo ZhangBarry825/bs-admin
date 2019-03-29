@@ -7,7 +7,8 @@
       :on-success="handleImageSuccess"
       class="image-uploader"
       drag
-      action="https://httpbin.org/post">
+      name="files"
+      action="/api/admin/upload/upload">
       <i class="el-icon-upload"/>
       <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
     </el-upload>
@@ -60,7 +61,7 @@ export default {
       this.$emit('input', val)
     },
     handleImageSuccess(file) {
-      this.emitInput(file.files.file)
+      this.emitInput('http://bs-api.barry.umdev.cn/'+file.data)
     },
     beforeUpload() {
       const _self = this
