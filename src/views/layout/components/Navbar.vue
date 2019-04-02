@@ -19,7 +19,7 @@
         <!--<lang-select class="right-menu-item hover-effect"/>-->
 
         <!--<el-tooltip :content="$t('navbar.theme')" effect="dark" placement="bottom">-->
-          <!--<theme-picker class="right-menu-item hover-effect"/>-->
+        <!--<theme-picker class="right-menu-item hover-effect"/>-->
         <!--</el-tooltip>-->
       </template>
 
@@ -35,15 +35,15 @@
             </el-dropdown-item>
           </router-link>
 
-          <router-link to="/">
+          <router-link to="/set/editUser">
             <el-dropdown-item>
               用户信息
             </el-dropdown-item>
           </router-link>
           <!--<a target="_blank" href="https://github.com/PanJiaChen/vue-element-admin/">-->
-            <!--<el-dropdown-item>-->
-              <!--{{ $t('navbar.github') }}-->
-            <!--</el-dropdown-item>-->
+          <!--<el-dropdown-item>-->
+          <!--{{ $t('navbar.github') }}-->
+          <!--</el-dropdown-item>-->
           <!--</a>-->
           <el-dropdown-item divided>
             <span style="display:block;" @click="logout">{{ $t('navbar.logOut') }}</span>
@@ -82,8 +82,10 @@ export default {
       'name',
       'avatar',
       'device',
-      'roles',
+      'roles'
     ])
+  },
+  mounted() {
   },
   methods: {
     toggleSideBar() {
@@ -94,8 +96,6 @@ export default {
         location.reload()// In order to re-instantiate the vue-router object to avoid bugs
       })
     }
-  },
-  mounted(){
   }
 }
 </script>

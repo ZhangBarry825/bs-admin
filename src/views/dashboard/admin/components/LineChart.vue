@@ -4,6 +4,7 @@
 
 <script>
 import echarts from 'echarts'
+
 require('echarts/theme/macarons') // echarts theme
 import { debounce } from '@/utils'
 
@@ -34,7 +35,7 @@ export default {
     return {
       chart: null,
       sidebarElm: null,
-      dayNum:[]
+      dayNum: []
     }
   },
   watch: {
@@ -46,18 +47,16 @@ export default {
     }
   },
   mounted() {
-
-    var date = new Date();
-    var year = date.getFullYear();
-    var month = date.getMonth()+1;
-    var d = new Date(year, month, 0);
+    var date = new Date()
+    var year = date.getFullYear()
+    var month = date.getMonth() + 1
+    var d = new Date(year, month, 0)
     // console.log(d.getDate(),123);
-    var dayNum=[]
-    for(let i=1;i<=d.getDate();i++){
-      dayNum[i-1]=i;
+    var dayNum = []
+    for (let i = 1; i <= d.getDate(); i++) {
+      dayNum[i - 1] = i
     }
-    this.dayNum=dayNum
-
+    this.dayNum = dayNum
 
     this.initChart()
     if (this.autoResize) {
@@ -121,7 +120,7 @@ export default {
           }
         },
         legend: {
-          data: [ '实际数据']
+          data: ['实际数据']
         },
         series: [{
           name: 'expected', itemStyle: {

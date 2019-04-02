@@ -1,19 +1,18 @@
 import request from '@/utils/request'
 
-
 export function addOrder(val) {
   const data = {
-    name:val.name,
-    price:val.price,
-    express_cost:val.express_cost,
-    type_id:val.type_id,
-    pic1:val.pic1,
-    pic2:val.pic2,
-    pic3:val.pic3,
-    status:val.status,
-    content:val.content,
-    stock:val.stock,
-    specification:val.specification
+    name: val.name,
+    price: val.price,
+    express_cost: val.express_cost,
+    type_id: val.type_id,
+    pic1: val.pic1,
+    pic2: val.pic2,
+    pic3: val.pic3,
+    status: val.status,
+    content: val.content,
+    stock: val.stock,
+    specification: val.specification
   }
   return request({
     url: '/api/admin/goods/create',
@@ -23,11 +22,13 @@ export function addOrder(val) {
 }
 export function updateOrder(val) {
   const data = {
-    id:val.id,
-    status:val.status,
-    refund_address:val.refund_address,
-    refund_contacts:val.refund_contacts,
-    refund_phone:val.refund_phone,
+    id: val.id,
+    status: val.status,
+    express_company: val.express_company,
+    express_code: val.express_code,
+    refund_address: val.refund_address,
+    refund_contacts: val.refund_contacts,
+    refund_phone: val.refund_phone
 
   }
   return request({
@@ -46,7 +47,7 @@ export function deleteOrder(id) {
     data
   })
 }
-export function getAllOrder(page_size,page_num) {
+export function getAllOrder(page_size, page_num) {
   const data = {
     page_size,
     page_num
@@ -57,7 +58,7 @@ export function getAllOrder(page_size,page_num) {
     data
   })
 }
-export function getRefundOrder(page_size,page_num) {
+export function getRefundOrder(page_size, page_num) {
   const data = {
     page_size,
     page_num
@@ -79,3 +80,30 @@ export function getOrderDetail(id) {
   })
 }
 
+export function orderStatistic() {
+  const data = {
+  }
+  return request({
+    url: '/api/admin/statistics/orderList',
+    method: 'get',
+    data
+  })
+}
+export function saleAccount() {
+  const data = {
+  }
+  return request({
+    url: '/api/admin/statistics/saleAccount',
+    method: 'get',
+    data
+  })
+}
+export function shopperList() {
+  const data = {
+  }
+  return request({
+    url: '/api/admin/statistics/shopperList',
+    method: 'get',
+    data
+  })
+}

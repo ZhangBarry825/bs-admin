@@ -4,66 +4,64 @@
     <div class="table">
       <div class="item">
         <div class="left">订单编号:</div>
-        <div class="right">{{myPostForm.order_id}}</div>
+        <div class="right">{{ myPostForm.order_id }}</div>
       </div>
       <div class="item">
         <div class="left">退款总价:</div>
-        <div class="right red">￥{{myPostForm.price}}</div>
+        <div class="right red">￥{{ myPostForm.price }}</div>
       </div>
 
       <div class="item">
         <div class="left">申请时间:</div>
-        <div class="right">{{formatTime(myPostForm.apply_refund_time)}}</div>
+        <div class="right">{{ formatTime(myPostForm.apply_refund_time) }}</div>
       </div>
-
 
       <div class="item">
         <div class="left">申请退款人:</div>
-        <div class="right">{{myPostForm.nickname}}（{{myPostForm.membership_id}}）</div>
+        <div class="right">{{ myPostForm.nickname }}（{{ myPostForm.membership_id }}）</div>
       </div>
 
       <div class="item">
         <div class="left">退货物流公司:</div>
-        <div class="right">{{formatExpress(myPostForm.express_company)}}</div>
+        <div class="right">{{ formatExpress(myPostForm.express_company) }}</div>
       </div>
       <div class="item">
         <div class="left">退货物流单号:</div>
-        <div class="right">{{myPostForm.express_code}}</div>
+        <div class="right">{{ myPostForm.express_code }}</div>
       </div>
       <div class="item" style="padding: 5px 3px">
         <div class="left">退货订单状态:</div>
         <div class="right">
 
-          <el-select v-model="myPostForm.status" placeholder="请选择">
+          <el-select v-model="myPostForm.status" :disabled="ifDisabled" placeholder="请选择">
             <el-option
               v-for="item in options"
               :key="item.value"
               :label="item.label"
-              :value="item.value">
-            </el-option>
+              :value="item.value"/>
           </el-select>
 
         </div>
       </div>
 
-      <div class="item" style="padding: 5px 3px" v-if="myPostForm.status==5||myPostForm.status==7">
+      <div v-if="myPostForm.status==5||myPostForm.status==7" class="item" style="padding: 5px 3px">
         <div class="left">商家收货人:</div>
         <div class="right">
           <div style="margin-left: 10px"> 收货人：</div>
-          <el-input v-model="myPostForm.refund_contacts" placeholder="请输入收货人" style="width: 140px"></el-input>
+          <el-input v-model="myPostForm.refund_contacts" placeholder="请输入收货人" style="width: 140px"/>
           <div style="margin-left: 10px"> 联系方式：</div>
-          <el-input v-model="myPostForm.refund_phone" placeholder="联系方式" style="width: 140px"></el-input>
+          <el-input v-model="myPostForm.refund_phone" placeholder="联系方式" style="width: 140px"/>
         </div>
       </div>
-      <div class="item" style="padding: 5px 3px" v-if="myPostForm.status==5||myPostForm.status==7">
+      <div v-if="myPostForm.status==5||myPostForm.status==7" class="item" style="padding: 5px 3px">
         <div class="left">商家收货地址：</div>
         <div class="right">
-          <el-input v-model="myPostForm.refund_address" placeholder="收货地址" style="width: 420px"></el-input>
+          <el-input v-model="myPostForm.refund_address" placeholder="收货地址" style="width: 420px"/>
         </div>
       </div>
       <div class="item">
         <div class="left">订单备注：</div>
-        <div class="right">{{myPostForm.remark}}</div>
+        <div class="right">{{ myPostForm.remark }}</div>
       </div>
       <div class="item">
         <el-button type="primary" style="margin-left: 10px" @click="submitForm">确定</el-button>
@@ -80,31 +78,30 @@
           label="图片"
           width="100">
           <template slot-scope="scope">
-            <div class="display-pic"
-                 :style="'background-image: url('+require('../../assets/display/5c1477307e.jpg')+')'"></div>
+            <div
+              :style="'background-image: url('+scope.row.pic1+')'"
+              class="display-pic"/>
           </template>
         </el-table-column>
         <el-table-column
           prop="name"
           label="标题"
-          width="250">
-        </el-table-column>
+          width="250"/>
         <el-table-column
           prop="price"
           label="价格">
           <template slot-scope="scope">
-            <a style="color: red;">￥{{scope.row.price}}</a>
+            <a style="color: red;">￥{{ scope.row.price }}</a>
           </template>
         </el-table-column>
         <el-table-column
           prop="num"
-          label="数量">
-        </el-table-column>
+          label="数量"/>
         <el-table-column
           prop="price"
           label="小计">
           <template slot-scope="scope">
-            <a style="color: red;">￥{{scope.row.price*scope.row.num}}</a>
+            <a style="color: red;">￥{{ scope.row.price*scope.row.num }}</a>
           </template>
         </el-table-column>
       </el-table>
@@ -113,92 +110,96 @@
 </template>
 
 <script>
-  import {getOrderDetail} from "@/api/order";
-  import {updateOrder} from "@/api/order";
-  import {parseTime} from "@/utils";
+import { getOrderDetail } from '@/api/order'
+import { updateOrder } from '@/api/order'
+import { parseTime } from '@/utils'
 
-  export default {
-    name: "refundDetail",
-    data() {
-      return {
-        options: [
-          {
-            value: 4,
-            label: '待退款'
-          }, {
-            value: 5,
-            label: '同意退款'
-          },  {
-            value: 6,
-            label: '拒绝退款'
-          }, {
-            value: 7,
-            label: '退款完成'
-          }
-        ],
-        tableData: [],
-        myPostForm: {
-          expressCompany: '',
-          expressNum: '',
-          status: '',
-          contact: '',
-          phone: ''
+export default {
+  name: 'RefundDetail',
+  data() {
+    return {
+      ifDisabled: false,
+      options: [
+        {
+          value: 4,
+          label: '待退款'
+        }, {
+          value: 5,
+          label: '同意退款'
+        }, {
+          value: 6,
+          label: '拒绝退款'
+        }, {
+          value: 7,
+          label: '退款完成'
         }
+      ],
+      tableData: [],
+      myPostForm: {
+        expressCompany: '',
+        expressNum: '',
+        status: '',
+        contact: '',
+        phone: ''
       }
-    },
-    methods: {
-      formatTime(v) {
-        return parseTime(v)
-      },
-      formatExpress(v) {
-        switch (v) {
-          case 1:
-            return '顺丰快递'
-          case 2:
-            return '中通快递'
-          case 3:
-            return '圆通快递'
-          case 4:
-            return '申通快递'
-          default:
-            return '其他'
-        }
-      },
-      fetchDetail(id) {
-        getOrderDetail(id).then(response => {
-          console.log(response, 555)
-          this.myPostForm = response.data
-        })
-      },
-      submitForm() {
-        console.log(this.myPostForm)
-        if ((this.myPostForm.status == 5 || this.myPostForm.status == 7) && (this.myPostForm.refund_address == '' || this.myPostForm.refund_contacts == '' || this.myPostForm.refund_phone == '')) {
-          this.$message({
-            type: 'error',
-            message: '收货信息不能为空！'
-          });
-          return;
-        }
-        console.log(this.myPostForm, 123)
-
-        updateOrder(this.myPostForm).then(response => {
-          console.log(response)
-          this.$notify({
-            title: '成功',
-            message: '保存成功',
-            type: 'success',
-            duration: 2000
-          })
-        })
-      }
-    },
-    mounted() {
-      console.log(this.$route.params.id)
-      this.fetchDetail(this.$route.params.id)
-      // this.getAllTypes()
     }
+  },
+  mounted() {
+    console.log(this.$route.params.id)
+    this.fetchDetail(this.$route.params.id)
+    // this.getAllTypes()
+  },
+  methods: {
+    formatTime(v) {
+      return parseTime(v)
+    },
+    formatExpress(v) {
+      switch (v) {
+        case 1:
+          return '顺丰快递'
+        case 2:
+          return '中通快递'
+        case 3:
+          return '圆通快递'
+        case 4:
+          return '申通快递'
+        default:
+          return '其他'
+      }
+    },
+    fetchDetail(id) {
+      getOrderDetail(id).then(response => {
+        console.log(response, 555)
+        this.myPostForm = response.data
+        if (this.myPostForm.status == 7) {
+          this.ifDisabled = true
+        }
+      })
+    },
+    submitForm() {
+      console.log(this.myPostForm)
+      if ((this.myPostForm.status == 5 || this.myPostForm.status == 7) && (this.myPostForm.refund_address == '' || this.myPostForm.refund_contacts == '' || this.myPostForm.refund_phone == '')) {
+        this.$message({
+          type: 'error',
+          message: '收货信息不能为空！'
+        })
+        return
+      }
+      console.log(this.myPostForm, 123)
 
+      updateOrder(this.myPostForm).then(response => {
+        console.log(response)
+        this.$notify({
+          title: '成功',
+          message: '保存成功',
+          type: 'success',
+          duration: 2000
+        })
+      })
+    }
   }
+
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>

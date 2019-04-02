@@ -1,31 +1,28 @@
 <template>
   <div class="content">
-    <TopHeader  :New="'/commodity/push'" @DeleteSelected="DeleteSelected"></TopHeader>
-
+    <TopHeader :new="'/commodity/push'" @DeleteSelected="DeleteSelected"/>
 
     <el-table
+      v-loading="loading"
       ref="multipleTable"
       :data="tableData"
       tooltip-effect="dark"
       style="width: 100%"
-      v-loading="loading"
       @selection-change="handleSelectionChange">
       <el-table-column
-        type="selection">
-      </el-table-column>
+        type="selection"/>
       <el-table-column
         label="商品编号">
         <template slot-scope="scope">{{ scope.row.goods_id }}</template>
       </el-table-column>
       <el-table-column
         prop="name"
-        label="名称">
-      </el-table-column>
+        label="名称"/>
       <el-table-column
         label="价格"
         show-overflow-tooltip>
         <template slot-scope="scope">
-          <div style="color: red">￥{{scope.row.price}}</div>
+          <div style="color: red">￥{{ scope.row.price }}</div>
         </template>
       </el-table-column>
       <el-table-column
@@ -34,7 +31,7 @@
         <template slot-scope="scope">
           <el-tag
             type="primary"
-            disable-transitions>{{formatter2(scope.row.type_id)}}
+            disable-transitions>{{ formatter2(scope.row.type_id) }}
           </el-tag>
         </template>
       </el-table-column>
@@ -42,31 +39,30 @@
         label="图片"
         show-overflow-tooltip>
         <template slot-scope="scope">
-          <div class="display-pic"
-               :style="'background-image: url('+require('../../assets/display/5c1477307e.jpg')+')'"></div>
+          <div
+            :style="'background-image: url('+scope.row.pic1+')'"
+            class="display-pic"/>
         </template>
       </el-table-column>
 
       <el-table-column
-        prop="status"
-        label="状态"
         :filters="[{ text: '正常', value: 1 }, { text: '下架', value: 0 }]"
         :filter-method="filterTag"
+        prop="status"
+        label="状态"
         filter-placement="bottom-end">
         <template slot-scope="scope">
           <el-tag
             :type="scope.row.status==1? 'primary' : 'danger'"
-            disable-transitions>{{formatter(scope.row.status)}}
+            disable-transitions>{{ formatter(scope.row.status) }}
           </el-tag>
         </template>
       </el-table-column>
 
-
       <el-table-column
         prop="stock"
         label="库存"
-        width="100">
-      </el-table-column>
+        width="100"/>
       <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button
@@ -89,155 +85,150 @@
     <el-pagination
       :page-size="page_size"
       :current-page="page_num"
-      @current-change="changPage"
+      :total="all_num"
       class="pageNum"
       background
       layout="prev, pager, next"
-      :total="all_num">
-    </el-pagination>
+      @current-change="changPage"/>
 
   </div>
 </template>
 
 <script>
-  import TopHeader from '@/components/TopHeader'
-  import {getAllGoods} from "@/api/goods";
-  import {getAllTypes} from "@/api/goodsType";
-  import {deleteGoods} from "@/api/goods";
+import TopHeader from '@/components/TopHeader'
+import { getAllGoods } from '@/api/goods'
+import { getAllTypes } from '@/api/goodsType'
+import { deleteGoods } from '@/api/goods'
 
-  export default {
-    name: "CommodityList",
-    components: {TopHeader},
-    data() {
-      return {
-        tableData: [],
-        selected: [],
-        loading: false,
-        page_size: 10,
-        page_num: 1,
-        all_num: 0,
-        TypeOptions: [],
+export default {
+  name: 'CommodityList',
+  components: { TopHeader },
+  data() {
+    return {
+      tableData: [],
+      selected: [],
+      loading: false,
+      page_size: 10,
+      page_num: 1,
+      all_num: 0,
+      TypeOptions: []
+    }
+  },
+  mounted() {
+    this.getData()
+    this.getAllTypes()
+  },
+
+  methods: {
+    DeleteSelected() {
+      console.log(this.selected)
+      var toDelete = []
+      for (let i = 0; i < this.selected.length; i++) {
+        toDelete[i] = this.selected[i].id
       }
-    },
-
-
-    methods: {
-      DeleteSelected(){
-        console.log(this.selected)
-        var toDelete=[]
-        for(let i=0;i<this.selected.length;i++){
-          toDelete[i]=this.selected[i].id
-        }
-        this.$confirm('删除这些商品, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-
-          deleteGoods(toDelete).then(response => {
-            if(response.msg=='success'){
-              this.$message({
-                type: 'success',
-                message: '删除成功!'
-              });
-              this.getData(this.page_num)
-            }
-            console.log(response)
-
-          })
-        }).catch(() => {
-
-        });
-      },
-      toggleSelection(rows) {
-        if (rows) {
-          rows.forEach(row => {
-            this.$refs.multipleTable.toggleRowSelection(row);
-          });
-        } else {
-          this.$refs.multipleTable.clearSelection();
-        }
-      },
-      handleSelectionChange(val) {
-        this.selected = val;
-      },
-      handleEdit(index, row) {
-        console.log(index, row);
-        this.$router.push({path:`/commodity/edit/${row.id}`})
-      },
-      handleDelete(index, row) {
-        console.log(index, row);
-
-        this.$confirm('删除该商品, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          deleteGoods([row.id]).then(response => {
-            console.log(response)
+      this.$confirm('删除这些商品, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteGoods(toDelete).then(response => {
+          if (response.msg == 'success') {
             this.$message({
               type: 'success',
               message: '删除成功!'
-            });
+            })
             this.getData(this.page_num)
-          })
-        }).catch(() => {
-
-        });
-      },
-
-
-      formatter(value) {
-        if(value==1){
-          return '正常'
-        }else {
-          return '下架'
-        }
-      },
-      formatter2(value) {
-        for(let i=0;i<this.TypeOptions.length;i++){
-          if(value==this.TypeOptions[i].type_id){
-            return this.TypeOptions[i].name
           }
-        }
-      },
-      filterTag(value, row) {
-        return row.isSale === value;
-      },
-      filterHandler(value, row, column) {
-        const property = column['property'];
-        return row[property] === value;
-      },
-      getData(page = 1) {
-        this.loading = true
-        getAllGoods(this.page_size, page).then(response => {
           console.log(response)
-          this.loading = false
-          if(response.data.rows.length < 1 && this.page_num>1){
-            this.page_num--
-            this.getData(this.page_num)
-          }else {
-            this.all_num = response.data.count
-            this.tableData = response.data.rows
-          }
         })
-      },
-      changPage(e) {
-        this.page_num=e
-        this.getData(e)
-      },
-      getAllTypes(){
-        getAllTypes(1000000,1).then(response => {
-          console.log(response.data,852)
-          this.TypeOptions=response.data.rows
+      }).catch(() => {
+
+      })
+    },
+    toggleSelection(rows) {
+      if (rows) {
+        rows.forEach(row => {
+          this.$refs.multipleTable.toggleRowSelection(row)
         })
+      } else {
+        this.$refs.multipleTable.clearSelection()
       }
     },
-    mounted(){
-      this.getData()
-      this.getAllTypes()
+    handleSelectionChange(val) {
+      this.selected = val
+    },
+    handleEdit(index, row) {
+      console.log(index, row)
+      this.$router.push({ path: `/commodity/edit/${row.id}` })
+    },
+    handleDelete(index, row) {
+      console.log(index, row)
+
+      this.$confirm('删除该商品, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteGoods([row.id]).then(response => {
+          console.log(response)
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+          this.getData(this.page_num)
+        })
+      }).catch(() => {
+
+      })
+    },
+
+    formatter(value) {
+      if (value == 1) {
+        return '正常'
+      } else {
+        return '下架'
+      }
+    },
+    formatter2(value) {
+      for (let i = 0; i < this.TypeOptions.length; i++) {
+        if (value == this.TypeOptions[i].type_id) {
+          return this.TypeOptions[i].name
+        }
+      }
+    },
+    filterTag(value, row) {
+      return row.isSale === value
+    },
+    filterHandler(value, row, column) {
+      const property = column['property']
+      return row[property] === value
+    },
+    getData(page = 1) {
+      this.loading = true
+      getAllGoods(this.page_size, page).then(response => {
+        console.log(response)
+        this.loading = false
+        if (response.data.rows.length < 1 && this.page_num > 1) {
+          this.page_num--
+          this.getData(this.page_num)
+        } else {
+          this.all_num = response.data.count
+          this.tableData = response.data.rows
+        }
+      })
+    },
+    changPage(e) {
+      this.page_num = e
+      this.getData(e)
+    },
+    getAllTypes() {
+      getAllTypes(1000000, 1).then(response => {
+        console.log(response.data, 852)
+        this.TypeOptions = response.data.rows
+      })
     }
   }
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>

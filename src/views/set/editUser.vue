@@ -36,6 +36,16 @@
             placeholder="请输入手机号"/>
         </el-form-item>
 
+        <el-form-item style="margin-bottom: 40px;" label-width="100px" label="角色">
+          <el-select v-model="myPostForm.roles" placeholder="请选择" disabled>
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"/>
+          </el-select>
+        </el-form-item>
+
         <el-form-item style="margin-bottom: 40px;" label-width="100px" label="昵称:">
           <el-input
             :rows="1"
@@ -95,6 +105,9 @@ import { userSearch } from '@/api/remoteSearch'
 import Warning from './Warning'
 import { CommentDropdown, PlatformDropdown, SourceUrlDropdown } from './Dropdown'
 import { newUser } from '@/api/user'
+import { userInfo } from '@/api/user'
+import { getUserDetail } from '@/api/user'
+import { updateUser } from '@/api/user'
 
 const defaultForm = {
   status: 'draft',
@@ -118,7 +131,7 @@ const myDefaultForm = {
   avatar: ''
 }
 export default {
-  name: 'NewUser',
+  name: 'EditUser',
   components: { Tinymce, MDinput, Upload, Sticky, Warning, CommentDropdown, PlatformDropdown, SourceUrlDropdown },
   props: {
     isEdit: {
@@ -168,9 +181,17 @@ export default {
         content: [{ validator: validateRequire }],
         source_uri: [{ validator: validateSourceUri, trigger: 'blur' }]
       },
-
       tempRoute: {},
-      imageUrl: ''
+      imageUrl: '',
+      options: [
+        {
+          value: 'admin',
+          label: '系统管理员'
+        }, {
+          value: 'manager',
+          label: '普通管理员'
+        }
+      ]
     }
   },
   computed: {
@@ -193,6 +214,9 @@ export default {
     // Because if you enter this page and quickly switch tag, may be in the execution of the setTagsViewTitle function, this.$route is no longer pointing to the current page
     // https://github.com/PanJiaChen/vue-element-admin/issues/1221
     this.tempRoute = Object.assign({}, this.$route)
+  },
+  mounted() {
+    this.fetchDetail()
   },
   methods: {
     fetchData(id) {
@@ -261,14 +285,20 @@ export default {
           message: '两次密码不一致！'
         })
       } else {
-        newUser(this.myPostForm).then(response => {
+        updateUser(this.myPostForm).then(response => {
           console.log(response)
           this.postForm.status = 'published'
           this.$notify({
             title: '成功',
-            message: '创建成功',
+            message: '保存成功',
             type: 'success',
             duration: 2000
+          })
+
+          getUserDetail(this.myPostForm.id).then(response => {
+            this.$store.commit('SET_AVATAR', response.data.avatar)
+          }).catch(err => {
+            console.log(err)
           })
         })
       }
@@ -321,6 +351,20 @@ export default {
         this.$message.error('上传头像图片大小不能超过 2MB!')
       }
       return isJPG && isLt2M
+    },
+    fetchDetail() {
+      userInfo().then(response => {
+        console.log(response)
+        getUserDetail(response.data.id).then(response1 => {
+          this.myPostForm = response1.data
+          this.myPostForm.password = ''
+          this.imageUrl = 'http://bs-api.barry.umdev.cn/' + response1.data.avatar
+        }).catch(err => {
+          console.log(err)
+        })
+      }).catch(err => {
+        console.log(err)
+      })
     }
   }
 }

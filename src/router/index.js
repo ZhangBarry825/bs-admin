@@ -216,7 +216,7 @@ export const asyncRouterMap = [
     component: Layout,
     redirect: 'noredirect',
     name: 'ErrorPages',
-    hidden:true,
+    hidden: true,
     meta: {
       title: 'errorPages',
       icon: '404'
@@ -369,8 +369,6 @@ export const asyncRouterMap = [
   //   ]
   // },
 
-
-
   {
     path: '/commodity',
     component: Layout,
@@ -385,46 +383,46 @@ export const asyncRouterMap = [
         path: 'list',
         component: () => import('@/views/commodity/list'),
         name: '商品列表',
-        meta: { title: '商品列表', noCache: true ,icon: 'clipboard' }
+        meta: { title: '商品列表', noCache: true, icon: 'clipboard' }
       },
       {
         path: 'edit/:id',
         component: () => import('@/views/commodity/edit'),
         name: '商品编辑',
         // hidden:true,
-        meta: { title: '商品编辑', noCache: true ,icon: 'clipboard' }
+        meta: { title: '商品编辑', noCache: true, icon: 'clipboard' }
       },
       {
         path: 'type',
         component: () => import('@/views/commodity/type'),
         name: '商品分类',
-        meta: { title: '商品分类', noCache: true ,icon: 'clipboard' }
+        meta: { title: '商品分类', noCache: true, icon: 'clipboard' }
       },
       {
         path: 'specification',
         component: () => import('@/views/commodity/specification'),
         name: '商品规格',
-        meta: { title: '商品规格', noCache: true ,icon: 'clipboard' }
+        meta: { title: '商品规格', noCache: true, icon: 'clipboard' }
       },
       {
         path: 'push',
         component: () => import('@/views/commodity/push'),
         name: '发布商品',
-        meta: { title: '发布商品', noCache: true ,icon: 'clipboard' }
+        meta: { title: '发布商品', noCache: true, icon: 'clipboard' }
       },
       {
         path: 'addType',
         component: () => import('@/views/commodity/addType'),
         name: '新建分类',
-        meta: { title: '新建分类', noCache: true ,icon: 'clipboard' }
+        meta: { title: '新建分类', noCache: true, icon: 'clipboard' }
       },
       {
         path: 'editType/:id',
         component: () => import('@/views/commodity/editType'),
         name: '编辑分类',
         // hidden:true,
-        meta: { title: '编辑分类', noCache: true ,icon: 'clipboard' }
-      },
+        meta: { title: '编辑分类', noCache: true, icon: 'clipboard' }
+      }
     ]
   },
   {
@@ -441,25 +439,25 @@ export const asyncRouterMap = [
         path: 'list',
         component: () => import('@/views/order/list'),
         name: '订单列表',
-        meta: { title: '订单列表', noCache: true ,icon: 'clipboard' }
+        meta: { title: '订单列表', noCache: true, icon: 'clipboard' }
       },
       {
         path: 'refund',
         component: () => import('@/views/order/refund'),
         name: '退货订单',
-        meta: { title: '退货订单', noCache: true ,icon: 'clipboard' }
+        meta: { title: '退货订单', noCache: true, icon: 'clipboard' }
       },
       {
         path: 'detail/:id',
         component: () => import('@/views/order/detail'),
         name: '订单详情',
-        meta: { title: '订单详情', noCache: true ,icon: 'clipboard' }
+        meta: { title: '订单详情', noCache: true, icon: 'clipboard' }
       },
       {
         path: 'refundDetail/:id',
         component: () => import('@/views/order/refundDetail'),
         name: '退货详情',
-        meta: { title: '退货详情', noCache: true ,icon: 'clipboard' }
+        meta: { title: '退货详情', noCache: true, icon: 'clipboard' }
       }
     ]
   },
@@ -478,32 +476,32 @@ export const asyncRouterMap = [
         path: 'encash',
         component: () => import('@/views/sale/encash'),
         name: '提现管理',
-        meta: { title: '提现管理', noCache: true ,icon: 'clipboard' }
+        meta: { title: '提现管理', noCache: true, icon: 'clipboard' }
       },
       {
         path: 'saleRule',
         component: () => import('@/views/sale/saleRule'),
         name: '分销规则',
-        meta: { title: '分销规则', noCache: true ,icon: 'clipboard' }
+        meta: { title: '分销规则', noCache: true, icon: 'clipboard' }
       },
       {
         path: 'saleUser',
         component: () => import('@/views/sale/saleUser'),
         name: '分销用户',
-        meta: { title: '分销用户', noCache: true ,icon: 'clipboard' }
+        meta: { title: '分销用户', noCache: true, icon: 'clipboard' }
       },
       {
-        path: 'detailUser',
+        path: 'detailUser/:id',
         component: () => import('@/views/sale/detailUser'),
         name: '用户详情',
-        meta: { title: '用户详情', noCache: true ,icon: 'clipboard' }
+        meta: { title: '用户详情', noCache: true, icon: 'clipboard' }
       },
       {
         path: 'commissionRule',
         component: () => import('@/views/sale/commissionRule'),
         name: '佣金规则',
-        meta: { title: '佣金规则', noCache: true ,icon: 'clipboard' }
-      },
+        meta: { title: '佣金规则', noCache: true, icon: 'clipboard' }
+      }
     ]
   },
   {
@@ -520,37 +518,43 @@ export const asyncRouterMap = [
         path: 'membership',
         component: () => import('@/views/set/membership'),
         name: '会员管理',
-        meta: { title: '会员管理', noCache: true ,icon: 'clipboard' }
+        meta: { title: '会员管理', noCache: true, icon: 'clipboard' }
       },
       {
         path: 'message',
         component: () => import('@/views/set/message'),
         name: '通知管理',
-        meta: { title: '通知管理', noCache: true ,icon: 'clipboard' }
+        meta: { title: '通知管理', noCache: true, icon: 'clipboard' }
       },
       {
         path: 'sysUser',
         component: () => import('@/views/set/sysUser'),
         name: '系统用户',
-        meta: { title: '系统用户', noCache: true ,icon: 'clipboard' }
+        meta: { title: '系统用户', noCache: true, icon: 'clipboard' }
       },
       {
         path: 'pushMessage',
         component: () => import('@/views/set/pushMessage'),
         name: '发布通知',
-        meta: { title: '发布通知', noCache: true ,icon: 'clipboard' }
+        meta: { title: '发布通知', noCache: true, icon: 'clipboard' }
       },
       {
         path: 'editMessage/:id',
         component: () => import('@/views/set/editMessage'),
         name: '编辑通知',
-        meta: { title: '编辑通知', noCache: true ,icon: 'clipboard' }
+        meta: { title: '编辑通知', noCache: true, icon: 'clipboard' }
       },
       {
         path: 'newUser',
         component: () => import('@/views/set/newUser'),
         name: '新建用户',
-        meta: { title: '新建用户', noCache: true ,icon: 'clipboard' }
+        meta: { title: '新建用户', noCache: true, icon: 'clipboard' }
+      },
+      {
+        path: 'editUser',
+        component: () => import('@/views/set/editUser'),
+        name: '用户信息',
+        meta: { title: '用户信息', noCache: true, icon: 'clipboard' }
       }
     ]
   },

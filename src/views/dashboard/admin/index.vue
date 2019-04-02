@@ -3,7 +3,7 @@
 
     <!--<github-corner style="position: absolute; top: 0px; border: 0; right: 0;"/>-->
 
-    <panel-group @handleSetLineChartData="handleSetLineChartData"/>
+    <panel-group :new-visits="newVisits" :messages="messages" :purchases="purchases" :shoppings="shoppings" @handleSetLineChartData="handleSetLineChartData"/>
 
     <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
       <line-chart :chart-data="lineChartData"/>
@@ -52,24 +52,28 @@ import BarChart from './components/BarChart'
 import TransactionTable from './components/TransactionTable'
 import TodoList from './components/TodoList'
 import BoxCard from './components/BoxCard'
+import { orderStatistic, saleAccount, shopperList } from '@/api/order'
 
 const lineChartData = {
-  newVisitis: {
+  newVisits: {
     // expectedData: [100, 120, 161, 134, 105, 160, 165],
-    actualData: [2, 3, 4, 5, 1, 7, 8,2, 3, 6, 5, 6, 7, 8, 5, 2,4,6],
-    type:''
+    actualData: [],
+    type: 'newVisits'
   },
   messages: {
     // expectedData: [200, 192, 120, 144, 160, 130, 140],
-    actualData:  [22, 31, 43, 54, 1, 71, 82,2, 3, 6, 51, 6, 7, 8, 54, 2,4,6]
+    actualData: [],
+    type: 'messages'
   },
   purchases: {
     // expectedData: [80, 100, 121, 104, 105, 90, 100],
-    actualData: [2, 3, 4, 5, 11, 7, 8,22, 3, 6, 5, 62, 7, 8, 5, 2,14,6]
+    actualData: [],
+    type: 'purchases'
   },
   shoppings: {
     // expectedData: [130, 140, 141, 142, 145, 150, 160],
-    actualData:  [2, 13, 4, 5, 1, 17, 8,2, 13, 6, 5, 16, 7, 8, 5, 12,4,6]
+    actualData: [],
+    type: 'shoppings'
   }
 }
 
@@ -88,12 +92,36 @@ export default {
   },
   data() {
     return {
-      lineChartData: lineChartData.newVisitis
+      lineChartData: lineChartData.newVisits,
+      newVisits: 0,
+      messages: 0,
+      purchases: 0,
+      shoppings: 0
     }
+  },
+  mounted() {
+    this.fetchData()
   },
   methods: {
     handleSetLineChartData(type) {
       this.lineChartData = lineChartData[type]
+    },
+    fetchData() {
+      orderStatistic().then(response => {
+        console.log(response)
+        lineChartData.newVisits.actualData = response.data.rows
+        this.newVisits = response.data.count
+      })
+      saleAccount().then(response => {
+        console.log(response)
+        lineChartData.messages.actualData = response.data.rows
+        this.messages = response.data.account
+      })
+      shopperList().then(response => {
+        console.log(response)
+        lineChartData.purchases.actualData = response.data.rows
+        this.purchases = response.data.count
+      })
     }
   }
 }
