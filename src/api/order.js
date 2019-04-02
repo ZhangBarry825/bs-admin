@@ -24,6 +24,7 @@ export function updateOrder(val) {
   const data = {
     id: val.id,
     status: val.status,
+    querenshouhuo: 1,
     express_company: val.express_company,
     express_code: val.express_code,
     refund_address: val.refund_address,
@@ -103,6 +104,15 @@ export function shopperList() {
   }
   return request({
     url: '/api/admin/statistics/shopperList',
+    method: 'get',
+    data
+  })
+}
+export function payCommission() {
+  const data = {
+  }
+  return request({
+    url: '/api/admin/statistics/payCommission',
     method: 'get',
     data
   })

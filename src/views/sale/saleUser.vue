@@ -22,7 +22,11 @@
         label="手机"/>
       <el-table-column
         prop="referrer"
-        label="推荐人"/>
+        label="推荐人">
+        <template slot-scope="scope">
+          {{ scope.row.referrer||'[总店]' }}
+        </template>
+      </el-table-column>
       <el-table-column
         prop="commission"
         label="可提现佣金">
@@ -86,135 +90,135 @@
 </template>
 
 <script>
-import TopHeader from '@/components/TopHeader'
-import { allSaleMembers } from '@/api/membership'
-import { parseTime } from '@/utils'
-import { deleteMembership } from '@/api/membership'
+  import TopHeader from '@/components/TopHeader'
+  import {allSaleMembers} from '@/api/membership'
+  import {parseTime} from '@/utils'
+  import {deleteMembership} from '@/api/membership'
 
-export default {
-  name: 'SaleUser',
-  components: { TopHeader },
-  data() {
-    return {
-      tableData: [
-        {
-          membership_id: 1125244,
-          nickname: '大番薯',
-          phone: '15138380000',
-          referrer: '雷神托尔',
-          commission: 552,
-          sale_account: 423,
-          create_time: 1553674956,
-          status: 1
-        }
-      ],
-      selected: [],
-      loading: false,
-      page_size: 10,
-      page_num: 1,
-      all_num: 0
-    }
-  },
-  mounted() {
-    this.getData()
-  },
-
-  methods: {
-    DeleteSelected() {
-      console.log(this.selected)
-      var toDelete = []
-      for (let i = 0; i < this.selected.length; i++) {
-        toDelete[i] = this.selected[i].id
+  export default {
+    name: 'SaleUser',
+    components: {TopHeader},
+    data() {
+      return {
+        tableData: [
+          {
+            membership_id: 1125244,
+            nickname: '大番薯',
+            phone: '15138380000',
+            referrer: '雷神托尔',
+            commission: 552,
+            sale_account: 423,
+            create_time: 1553674956,
+            status: 1
+          }
+        ],
+        selected: [],
+        loading: false,
+        page_size: 10,
+        page_num: 1,
+        all_num: 0
       }
-      this.$confirm('删除这些分销用户, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        deleteMembership(toDelete).then(response => {
-          if (response.msg == 'success') {
+    },
+    mounted() {
+      this.getData()
+    },
+
+    methods: {
+      DeleteSelected() {
+        console.log(this.selected)
+        var toDelete = []
+        for (let i = 0; i < this.selected.length; i++) {
+          toDelete[i] = this.selected[i].id
+        }
+        this.$confirm('删除这些分销用户, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          deleteMembership(toDelete).then(response => {
+            if (response.msg == 'success') {
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              })
+              this.getData(this.page_num)
+            }
+            console.log(response)
+          })
+        }).catch(() => {
+
+        })
+      },
+      handleSelectionChange(val) {
+        this.selected = val
+      },
+      handleEdit(index, row) {
+        console.log(index, row)
+        this.$router.push({path: `/sale/detailUser/${row.id}`})
+      },
+      handleDelete(index, row) {
+        console.log(index, row)
+        this.$confirm('删除该分销用户 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          deleteMembership([row.id]).then(response => {
+            console.log(response)
             this.$message({
               type: 'success',
               message: '删除成功!'
             })
             this.getData(this.page_num)
-          }
-          console.log(response)
-        })
-      }).catch(() => {
-
-      })
-    },
-    handleSelectionChange(val) {
-      this.selected = val
-    },
-    handleEdit(index, row) {
-      console.log(index, row)
-      this.$router.push({ path: `/sale/detailUser/${row.id}` })
-    },
-    handleDelete(index, row) {
-      console.log(index, row)
-      this.$confirm('删除该分销用户 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        deleteMembership([row.id]).then(response => {
-          console.log(response)
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
           })
-          this.getData(this.page_num)
+        }).catch(() => {
+
         })
-      }).catch(() => {
+      },
+      formatTime(v) {
+        return parseTime(v)
+      },
 
-      })
-    },
-    formatTime(v) {
-      return parseTime(v)
-    },
-
-    formatter(value) {
-      if (value == 1) {
-        return '待审核'
-      } else if (value == 2) {
-        return '已通过'
-      } else if (value == 3) {
-        return '已拒绝'
-      } else if (value == 4) {
-        return '已禁用'
-      } else {
-        return '未知'
-      }
-    },
-    filterTag(value, row) {
-      return row.status === value
-    },
-    filterHandler(value, row, column) {
-      const property = column['property']
-      return row[property] === value
-    },
-    getData(page = 1) {
-      this.loading = true
-      allSaleMembers(this.page_size, page).then(response => {
-        console.log(response)
-        this.loading = false
-        if (response.data.rows.length < 1 && this.page_num > 1) {
-          this.page_num--
-          this.getData(this.page_num)
+      formatter(value) {
+        if (value == 1) {
+          return '待审核'
+        } else if (value == 2) {
+          return '已通过'
+        } else if (value == 3) {
+          return '已拒绝'
+        } else if (value == 4) {
+          return '已禁用'
         } else {
-          this.all_num = response.data.count
-          this.tableData = response.data.rows
+          return '未知'
         }
-      })
-    },
-    changPage(e) {
-      this.page_num = e
-      this.getData(e)
+      },
+      filterTag(value, row) {
+        return row.status === value
+      },
+      filterHandler(value, row, column) {
+        const property = column['property']
+        return row[property] === value
+      },
+      getData(page = 1) {
+        this.loading = true
+        allSaleMembers(this.page_size, page).then(response => {
+          console.log(response)
+          this.loading = false
+          if (response.data.rows.length < 1 && this.page_num > 1) {
+            this.page_num--
+            this.getData(this.page_num)
+          } else {
+            this.all_num = response.data.count
+            this.tableData = response.data.rows
+          }
+        })
+      },
+      changPage(e) {
+        this.page_num = e
+        this.getData(e)
+      }
     }
   }
-}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>

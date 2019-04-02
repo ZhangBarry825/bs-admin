@@ -22,7 +22,11 @@
         label="手机"/>
       <el-table-column
         prop="referrer"
-        label="推荐人"/>
+        label="推荐人">
+        <template slot-scope="scope">
+          {{ scope.row.referrer||'[总店]' }}
+        </template>
+      </el-table-column>
       <el-table-column
         prop="balance"
         label="余额">

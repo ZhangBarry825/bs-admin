@@ -50,7 +50,7 @@
         <div class="left">订单状态:</div>
         <div class="right">
 
-          <el-select v-model="myPostForm.status" placeholder="请选择">
+          <el-select v-model="myPostForm.status" placeholder="请选择" :disabled="isDisable">
             <el-option
               v-for="item in options"
               :key="item.value"
@@ -65,7 +65,7 @@
         <div class="left">配送方式：</div>
         <div class="right" style="display: flex;justify-content: flex-start">
           <div style=""> 快递公司：</div>
-          <el-select v-model="myPostForm.express_company" placeholder="请选择" style="width: 120px">
+          <el-select v-model="myPostForm.express_company" placeholder="请选择" style="width: 120px"  :disabled="isDisable">
             <el-option
               v-for="item in express"
               :key="item.value"
@@ -74,7 +74,7 @@
             </el-option>
           </el-select>
           <div style="margin-left: 10px"> 快递单号：</div>
-          <el-input v-model="myPostForm.express_code" placeholder="请输入快递单号" style="width: 140px"></el-input>
+          <el-input v-model="myPostForm.express_code" placeholder="请输入快递单号" style="width: 140px"  :disabled="isDisable"></el-input>
         </div>
       </div>
       <div class="item">
@@ -82,7 +82,7 @@
         <div class="right">{{myPostForm.remark}}</div>
       </div>
       <div class="item">
-        <el-button type="primary" style="margin-left: 10px" @click="submitForm">确定</el-button>
+        <el-button type="primary" style="margin-left: 10px" @click="submitForm"  :disabled="isDisable">确定</el-button>
       </div>
     </div>
 
@@ -97,7 +97,7 @@
           width="100">
           <template slot-scope="scope">
             <div class="display-pic"
-                 :style="'background-image: url('+require('../../assets/display/5c1477307e.jpg')+')'"></div>
+                 :style="'background-image: url('+scope.row.pic1+')'"></div>
           </template>
         </el-table-column>
         <el-table-column
@@ -182,7 +182,8 @@
           expressNum: '',
           status: '',
           goods: []
-        }
+        },
+        isDisable:false
       }
     },
     methods: {
@@ -193,6 +194,9 @@
         getOrderDetail(id).then(response => {
           console.log(response, 555)
           this.myPostForm = response.data
+          if(response.data.status==3){
+            this.isDisable=true
+          }
         })
       },
       submitForm() {
@@ -214,6 +218,7 @@
             type: 'success',
             duration: 2000
           })
+          this.fetchDetail(this.$route.params.id)
         })
       }
     },
