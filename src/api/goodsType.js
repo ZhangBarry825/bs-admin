@@ -16,20 +16,13 @@ export function updateGoodsType(val) {
   const data = {
     id:val.id,
     name:val.name,
-    price:val.price,
     type_id:val.type_id,
-    pic1:val.pic1,
-    pic2:val.pic2,
-    pic3:val.pic3,
-    status:val.status,
-    stock:val.stock,
-    content:val.content,
-    express_cost:val.express_cost,
-    create_time:val.create_time,
-    specification:val.specification,
+    avatar:val.avatar,
+    belong_id:val.belong_id,
+    children:val.children
   }
   return request({
-    url: '/api/admin/goods/update',
+    url: '/api/admin/goodsType/update',
     method: 'post',
     data
   })

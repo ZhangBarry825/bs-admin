@@ -59,6 +59,29 @@
           <el-input v-model="myPostForm.refund_address" placeholder="收货地址" style="width: 420px"/>
         </div>
       </div>
+
+
+      <div v-if="myPostForm.status>=5" class="item" style="padding: 5px 3px">
+        <div class="left">退货快递公司：</div>
+        <div class="right">
+          <el-select v-model="myPostForm.refund_express_company" placeholder="请选择" style="width: 120px" disabled>
+            <el-option
+              v-for="item in express"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </div>
+      </div>
+      <div v-if="myPostForm.status>=5" class="item" style="padding: 5px 3px">
+        <div class="left">退货快递编号：</div>
+        <div class="right">
+          <el-input v-model="myPostForm.refund_express_code" placeholder="暂无" disabled style="width: 420px"/>
+        </div>
+      </div>
+
+
       <div class="item">
         <div class="left">订单备注：</div>
         <div class="right">{{ myPostForm.remark }}</div>
@@ -110,96 +133,118 @@
 </template>
 
 <script>
-import { getOrderDetail } from '@/api/order'
-import { updateOrder } from '@/api/order'
-import { parseTime } from '@/utils'
+  import {getOrderDetail} from '@/api/order'
+  import {updateOrder} from '@/api/order'
+  import {parseTime} from '@/utils'
 
-export default {
-  name: 'RefundDetail',
-  data() {
-    return {
-      ifDisabled: false,
-      options: [
-        {
-          value: 4,
-          label: '待退款'
-        }, {
-          value: 5,
-          label: '同意退款'
-        }, {
-          value: 6,
-          label: '拒绝退款'
-        }, {
-          value: 7,
-          label: '退款完成'
+  export default {
+    name: 'RefundDetail',
+    data() {
+      return {
+        ifDisabled: false,
+        express: [
+          {
+            value: 0,
+            label: '暂无'
+          }, {
+            value: 1,
+            label: '顺丰快递'
+          }, {
+            value: 2,
+            label: '中通快递'
+          }, {
+            value: 3,
+            label: '圆通快递'
+          }, {
+            value: 4,
+            label: '申通快递'
+          }, {
+            value: 5,
+            label: '其他'
+          }],
+        options: [
+          {
+            value: 4,
+            label: '待退款'
+          }, {
+            value: 5,
+            label: '同意退款'
+          }, {
+            value: 6,
+            label: '拒绝退款'
+          }, {
+            value: 7,
+            label: '退款完成'
+          }
+        ],
+        tableData: [],
+        myPostForm: {
+          refund_express_company: '',
+          refund_express_code: '',
+          expressCompany: '',
+          expressNum: '',
+          status: '',
+          contact: '',
+          phone: ''
         }
-      ],
-      tableData: [],
-      myPostForm: {
-        expressCompany: '',
-        expressNum: '',
-        status: '',
-        contact: '',
-        phone: ''
+      }
+    },
+    mounted() {
+      console.log(this.$route.params.id)
+      this.fetchDetail(this.$route.params.id)
+      // this.getAllTypes()
+    },
+    methods: {
+      formatTime(v) {
+        return parseTime(v)
+      },
+      formatExpress(v) {
+        switch (v) {
+          case 1:
+            return '顺丰快递'
+          case 2:
+            return '中通快递'
+          case 3:
+            return '圆通快递'
+          case 4:
+            return '申通快递'
+          default:
+            return '其他'
+        }
+      },
+      fetchDetail(id) {
+        getOrderDetail(id).then(response => {
+          console.log(response, 555)
+          this.myPostForm = response.data
+          if (this.myPostForm.status == 7) {
+            this.ifDisabled = true
+          }
+        })
+      },
+      submitForm() {
+        console.log(this.myPostForm)
+        if ((this.myPostForm.status == 5 || this.myPostForm.status == 7) && (this.myPostForm.refund_address == '' || this.myPostForm.refund_contacts == '' || this.myPostForm.refund_phone == '')) {
+          this.$message({
+            type: 'error',
+            message: '收货信息不能为空！'
+          })
+          return
+        }
+        console.log(this.myPostForm, 123)
+
+        updateOrder(this.myPostForm).then(response => {
+          console.log(response)
+          this.$notify({
+            title: '成功',
+            message: '保存成功',
+            type: 'success',
+            duration: 2000
+          })
+        })
       }
     }
-  },
-  mounted() {
-    console.log(this.$route.params.id)
-    this.fetchDetail(this.$route.params.id)
-    // this.getAllTypes()
-  },
-  methods: {
-    formatTime(v) {
-      return parseTime(v)
-    },
-    formatExpress(v) {
-      switch (v) {
-        case 1:
-          return '顺丰快递'
-        case 2:
-          return '中通快递'
-        case 3:
-          return '圆通快递'
-        case 4:
-          return '申通快递'
-        default:
-          return '其他'
-      }
-    },
-    fetchDetail(id) {
-      getOrderDetail(id).then(response => {
-        console.log(response, 555)
-        this.myPostForm = response.data
-        if (this.myPostForm.status == 7) {
-          this.ifDisabled = true
-        }
-      })
-    },
-    submitForm() {
-      console.log(this.myPostForm)
-      if ((this.myPostForm.status == 5 || this.myPostForm.status == 7) && (this.myPostForm.refund_address == '' || this.myPostForm.refund_contacts == '' || this.myPostForm.refund_phone == '')) {
-        this.$message({
-          type: 'error',
-          message: '收货信息不能为空！'
-        })
-        return
-      }
-      console.log(this.myPostForm, 123)
 
-      updateOrder(this.myPostForm).then(response => {
-        console.log(response)
-        this.$notify({
-          title: '成功',
-          message: '保存成功',
-          type: 'success',
-          duration: 2000
-        })
-      })
-    }
   }
-
-}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
