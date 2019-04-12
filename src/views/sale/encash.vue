@@ -43,7 +43,8 @@
       </el-table-column>
       <el-table-column
         prop="pay_time"
-        label="打款时间">
+        label="打款时间"
+        width="180">
         <template slot-scope="scope">
           <a v-if="scope.row.status==1">{{ formatTime(scope.row.pay_time) }}</a>
           <a v-if="scope.row.status!=1">-</a>
@@ -63,7 +64,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="操作">
+      <el-table-column label="操作"width="180">
         <template slot-scope="scope">
           <el-button
             :disabled="scope.row.status==1"
