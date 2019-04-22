@@ -61,7 +61,7 @@ export default {
       this.$emit('input', val)
     },
     handleImageSuccess(file) {
-      this.emitInput('http://bs-api.barry.umdev.cn/'+file.data)
+      this.emitInput(this.GLOBALDATA.absoluteUrl+file.data)
     },
     beforeUpload() {
       const _self = this

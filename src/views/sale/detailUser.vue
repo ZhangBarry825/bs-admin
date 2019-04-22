@@ -23,6 +23,10 @@
         <div class="right money">￥{{ postForm.commission }}</div>
       </div>
       <div class="item">
+        <div class="left">消费额:</div>
+        <div class="right money">￥{{ postForm.expense }}</div>
+      </div>
+      <div class="item">
         <div class="left">销售额:</div>
         <div class="right money">￥{{ postForm.sale_account }}</div>
       </div>

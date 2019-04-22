@@ -1,7 +1,6 @@
 <template>
   <div class="content">
     <div class="box">
-
       <h2>佣金规则</h2>
       <div class="items">
         <div class="item title">
