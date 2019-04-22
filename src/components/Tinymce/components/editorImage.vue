@@ -60,7 +60,7 @@ export default {
       const objKeyArr = Object.keys(this.listObj)
       for (let i = 0, len = objKeyArr.length; i < len; i++) {
         if (this.listObj[objKeyArr[i]].uid === uid) {
-          this.listObj[objKeyArr[i]].url = this.GLOBALDATA.absoluteUrl+response.data
+          this.listObj[objKeyArr[i]].url = this.GLOBALDATA.absoluteUrl+'/'+response.data
           this.listObj[objKeyArr[i]].hasSuccess = true
           return
         }

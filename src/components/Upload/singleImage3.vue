@@ -61,7 +61,7 @@ export default {
       this.$emit('input', val)
     },
     handleImageSuccess(file) {
-      this.emitInput(this.GLOBALDATA.absoluteUrl+file.data)
+      this.emitInput(this.GLOBALDATA.absoluteUrl+'/'+file.data)
     },
     beforeUpload() {
       const _self = this

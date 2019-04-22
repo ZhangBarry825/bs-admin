@@ -191,7 +191,7 @@ export default {
       } else if (value == 4) {
         return '已禁用'
       } else {
-        return '未知'
+        return '未申请'
       }
     },
     filterTag(value, row) {

@@ -358,7 +358,7 @@ export default {
         getUserDetail(response.data.id).then(response1 => {
           this.myPostForm = response1.data
           this.myPostForm.password = ''
-          this.imageUrl = 'http://bs-api.barry.umdev.cn/' + response1.data.avatar
+          this.imageUrl = this.GLOBALDATA.absoluteUrl +'/'+ response1.data.avatar
         }).catch(err => {
           console.log(err)
         })
