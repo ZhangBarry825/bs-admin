@@ -7,20 +7,20 @@
       <el-button type="primary" icon="el-icon-delete" @click="DeleteSelected">删除</el-button>
     </el-button-group>
 
-    <el-form :inline="true" :model="formInline" class="demo-form-inline">
-      <el-form-item label="名称">
-        <el-input v-model="formInline.user" placeholder="名称"></el-input>
-      </el-form-item>
-      <el-form-item label="商品分类">
-        <el-select v-model="formInline.region" placeholder="商品分类">
-          <el-option label="分类一" value="shanghai"></el-option>
-          <el-option label="分类二" value="beijing"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="onSubmit">查询</el-button>
-      </el-form-item>
-    </el-form>
+    <!--<el-form :inline="true" :model="formInline" class="demo-form-inline">-->
+      <!--<el-form-item label="关键词">-->
+        <!--<el-input v-model="formInline.user" placeholder="请输入关键词"></el-input>-->
+      <!--</el-form-item>-->
+      <!--<el-form-item label="商品分类">-->
+        <!--<el-select v-model="formInline.region" placeholder="商品分类">-->
+          <!--<el-option label="分类一" value="shanghai"></el-option>-->
+          <!--<el-option label="分类二" value="beijing"></el-option>-->
+        <!--</el-select>-->
+      <!--</el-form-item>-->
+      <!--<el-form-item>-->
+        <!--<el-button type="primary" @click="onSubmit">查询</el-button>-->
+      <!--</el-form-item>-->
+    <!--</el-form>-->
   </div>
 </template>
 
