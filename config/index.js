@@ -12,7 +12,8 @@ module.exports = {
     proxyTable: {
       '/api': {
         changeOrigin: true,
-        target: 'http://bs-api.barry.umdev.cn',
+        // target: 'http://bs-api.barry.umdev.cn',
+        target: 'http://bs-api.luckyme.com.cn',
         pathRewrite:{
           '^/api':''
         }
